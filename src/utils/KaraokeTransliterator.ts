@@ -72,6 +72,8 @@ export class KaraokeTransliterator {
     'กู': ['gu', 'goo', 'ku', 'koo'],
     'มึง': ['mueng', 'mung', 'meung', 'muang'],
     'เหี้ย': ['hia', 'hea', 'hear', 'heya'],
+    'เชี้ย': ['chia', 'chea', 'cheay', 'chiya', 'chay'],
+    'เชี่ย': ['chia', 'chea', 'cheay', 'chiya', 'chay'],
     'ควย': ['kuay', 'kuai', 'kwai', 'kway', 'kuy'],
     'สัส': ['sus', 'sas', 'sat', 'sud'],
     'แม่ง': ['maeng', 'mang', 'meang', 'meng'],
@@ -224,7 +226,9 @@ export class KaraokeTransliterator {
       'love', 'you', 'are', 'the', 'and', 'for', 'not', 'all', 'can', 'had', 'her', 'was',
       'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new',
       'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'man', 'men', 'run', 'say',
-      'she', 'too', 'use', 'want', 'come', 'know', 'like', 'look', 'make', 'time', 'work'
+      'she', 'too', 'use', 'want', 'come', 'know', 'like', 'look', 'make', 'time', 'work',
+      'chair', 'cheese', 'china', 'child', 'change', 'choose', 'check', 'cheap', 'cheer',
+      'chief', 'church', 'chance', 'choice', 'charge'
     ];
     return commonWords.includes(word.toLowerCase());
   }

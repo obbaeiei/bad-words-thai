@@ -1,6 +1,6 @@
 {
   "name": "bad-words-thai",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Advanced profanity filter for Thai and English with language detection, fuzzy matching, and context-aware filtering",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
