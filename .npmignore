@@ -1,0 +1,26 @@
+# Source files
+src/
+tests/
+examples/
+
+# Development files
+.gitignore
+.eslintrc.js
+jest.config.js
+tsconfig.json
+
+# IDE
+.vscode/
+.idea/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary
+*.tmp
+test-*.js
