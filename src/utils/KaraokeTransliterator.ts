@@ -67,12 +67,12 @@ export class KaraokeTransliterator {
   };
 
   private static readonly COMMON_WORDS: { [key: string]: string[] } = {
-    'ไอ้': ['ai', 'i', 'eye', 'aai'],
+    'ไอ้': ['ai', 'i', 'eye', 'aai', 'ay'],
     'อี': ['ee', 'e', 'ii', 'i'],
     'กู': ['gu', 'goo', 'ku', 'koo'],
     'มึง': ['mueng', 'mung', 'meung', 'muang'],
     'เหี้ย': ['hia', 'hea', 'hear', 'heya'],
-    'ควย': ['kuay', 'kuai', 'kwai', 'kway'],
+    'ควย': ['kuay', 'kuai', 'kwai', 'kway', 'kuy'],
     'สัส': ['sus', 'sas', 'sat', 'sud'],
     'แม่ง': ['maeng', 'mang', 'meang', 'meng'],
     'เย็ด': ['yed', 'yet', 'yedd', 'yaed'],

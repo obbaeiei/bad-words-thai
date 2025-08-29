@@ -151,8 +151,8 @@ export class ThaiProfanityFilter {
         }
       }
       
-      // Only use karaoke if confidence is low (might be transliterated Thai)
-      if (this.options.detectKaraoke && languageResult.confidence < 0.8) {
+      // Always run karaoke detection for English text - let context filtering handle false positives
+      if (this.options.detectKaraoke) {
         const karaokeMatches = this.detectKaraokeWithContext(text, languageResult.confidence);
         detectedWords.push(...karaokeMatches);
       }
