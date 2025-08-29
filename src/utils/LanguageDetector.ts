@@ -1,19 +1,10 @@
-import * as cld from 'cld';
+import { loadModule, LanguageIdentifier, LanguageResult } from 'cld3-asm';
 
 export type DetectedLanguage = 'thai' | 'english' | 'mixed' | 'unknown';
 
-interface CldLanguageDetection {
-  code: string;
-  name: string;
-  percent: number;
-}
+// Use the LanguageResult from cld3-asm directly
 
-interface CldDetectionResult {
-  reliable: boolean;
-  languages: CldLanguageDetection[];
-}
-
-export interface LanguageResult {
+export interface DetectorResult {
   primary: DetectedLanguage;
   confidence: number;
   details: {
@@ -24,11 +15,25 @@ export interface LanguageResult {
   isReliable: boolean;
 }
 
+// Module-level language identifier
+let cldIdentifier: LanguageIdentifier | null = null;
+
 export class LanguageDetector {
   private static readonly THAI_CHAR_REGEX = /[\u0E00-\u0E7F]/g;
   private static readonly ENGLISH_CHAR_REGEX = /[a-zA-Z]/g;
   
-  static async detect(text: string): Promise<LanguageResult> {
+  private static async ensureCldInitialized(): Promise<void> {
+    if (!cldIdentifier) {
+      try {
+        const cldFactory = await loadModule();
+        cldIdentifier = cldFactory.create();
+      } catch (error) {
+        console.warn('Failed to initialize CLD3:', error);
+      }
+    }
+  }
+  
+  static async detect(text: string): Promise<DetectorResult> {
     try {
       // Quick heuristic check first
       const heuristic = this.quickHeuristic(text);
@@ -38,34 +43,30 @@ export class LanguageDetector {
         return heuristic;
       }
       
-      // Use CLD for more complex detection
-      const detection = await cld.detect(text) as unknown as CldDetectionResult;
+      // Initialize CLD3 if needed
+      await this.ensureCldInitialized();
       
-      return this.processDetection(detection, text);
-      
-    } catch (error) {
-      // Fallback to heuristic if CLD fails
-      return this.quickHeuristic(text);
-    }
-  }
-  
-  static detectSync(text: string): LanguageResult {
-    try {
-      const heuristic = this.quickHeuristic(text);
-      
-      if (text.trim().length < 10 || heuristic.confidence > 0.9) {
-        return heuristic;
+      // Use CLD3 for more complex detection if available
+      if (cldIdentifier) {
+        const detection = cldIdentifier.findLanguage(text);
+        return this.processCld3Detection(detection, text);
       }
       
-      const detection = cld.detect(text) as unknown as CldDetectionResult;
-      return this.processDetection(detection, text);
+      // Fallback to heuristic if CLD3 not available
+      return heuristic;
       
     } catch (error) {
+      // Fallback to heuristic if CLD3 fails
       return this.quickHeuristic(text);
     }
   }
   
-  private static quickHeuristic(text: string): LanguageResult {
+  static detectSync(text: string): DetectorResult {
+    // CLD3-asm is async only, so use heuristic for sync calls
+    return this.quickHeuristic(text);
+  }
+  
+  private static quickHeuristic(text: string): DetectorResult {
     const thaiMatches = text.match(this.THAI_CHAR_REGEX) || [];
     const englishMatches = text.match(this.ENGLISH_CHAR_REGEX) || [];
     const totalChars = text.replace(/\s+/g, '').length;
@@ -117,26 +118,23 @@ export class LanguageDetector {
     };
   }
   
-  private static processDetection(detection: CldDetectionResult, originalText: string): LanguageResult {
+  private static processCld3Detection(detection: LanguageResult, originalText: string): DetectorResult {
     const heuristic = this.quickHeuristic(originalText);
     
-    if (!detection.languages || detection.languages.length === 0) {
+    if (!detection || !detection.language) {
       return heuristic;
     }
     
-    const topLanguage = detection.languages[0];
-    const isReliable = detection.reliable;
+    const isReliable = detection.is_reliable;
     
-    // Map CLD language codes to our types
+    // Map CLD3 language codes to our types
     let primary: DetectedLanguage;
     
-    switch (topLanguage.code) {
+    switch (detection.language) {
       case 'th':
-      case 'thai':
         primary = 'thai';
         break;
       case 'en':
-      case 'eng':
         primary = 'english';
         break;
       default:
@@ -154,19 +152,19 @@ export class LanguageDetector {
       primary = 'mixed';
     }
     
-    // Combine CLD confidence with heuristic
+    // Combine CLD3 confidence with heuristic
     const combinedConfidence = isReliable ? 
-      Math.max(topLanguage.percent / 100, heuristic.confidence) :
-      Math.min(topLanguage.percent / 100, heuristic.confidence);
+      Math.max(detection.probability, heuristic.confidence) :
+      Math.min(detection.probability, heuristic.confidence);
     
     return {
       primary,
       confidence: combinedConfidence,
-      details: detection.languages.map((lang: CldLanguageDetection) => ({
-        code: lang.code,
-        name: lang.name,
-        percent: lang.percent
-      })),
+      details: [{
+        code: detection.language,
+        name: detection.language,
+        percent: detection.probability * 100
+      }],
       isReliable
     };
   }

@@ -15,7 +15,7 @@ import {
 import { TextNormalizer } from './utils/TextNormalizer';
 import { FuzzyMatcher } from './utils/FuzzyMatcher';
 import { KaraokeTransliterator } from './utils/KaraokeTransliterator';
-import { LanguageDetector, LanguageResult } from './utils/LanguageDetector';
+import { LanguageDetector, DetectorResult } from './utils/LanguageDetector';
 
 export class ThaiProfanityFilter {
   private thaiBadWords: Set<string>;
